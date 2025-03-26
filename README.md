@@ -1,4 +1,4 @@
-# UninsHs improvement
+# UninsHs remove deselected components
 
 > This is an improvement for the Inno Setup's tool: UninsHs, developed by Han-soft.
 <br/>
@@ -28,7 +28,8 @@ var
 ```
 
 <br/>
-Replace the *UninsHs_InitializeWizard()* procedure with this one:
+
+Replace the `UninsHs_InitializeWizard()` procedure with this one:
 
 ```pascal
 
@@ -93,3 +94,13 @@ end;
 ```
 
 <br/>
+
+Finally, call the method `UninsHs_CurStepChanged` from your script file:
+
+```pascal
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  UninsHs_CurStepChanged(CurStep);
+end;
+
+```
