@@ -1,4 +1,4 @@
-# UninsHs remove deselected components
+# Remove deselected components improvement for UninsHs
 
 > This is an improvement for the Inno Setup's tool: UninsHs, developed by Han-soft.
 <br/>
