@@ -16,3 +16,80 @@ When modifying an existing installation, any components that were **deselected**
 
 ## Code
 
+For the improvement to work, modify the uninshs.iss as follows:
+
+In the `[CODE]` section, add this variable:
+
+```pascal
+
+var
+  InstalledComponents: string;
+
+```
+
+<br/>
+Replace the *UninsHs_InitializeWizard()* procedure with this one:
+
+```pascal
+
+procedure UninsHs_InitializeWizard();
+  
+begin
+  if IsMaintenance() then
+  begin
+  
+  if RegQueryStringValue(HKEY_LOCAL_MACHINE, RegPathUninstall() + '{#AppId}_is1', 'Inno Setup: Selected Components', InstalledComponents) then
+    begin
+    end
+    else
+    begin
+      MsgBox('Components data not found in Registry', mbError, MB_OK);
+      InstalledComponents := '';
+    end;
+  
+    CreateMaintenance();
+    #if !YesNo(SetupSetting("DisableWelcomePage"))
+    ClickNext();
+    #endif
+  end;
+end;
+
+```
+<br/>
+Add the following procedure as well:
+
+```pascal
+
+procedure UninsHs_CurStepChanged(CurStep: TSetupStep);
+var
+  i: Integer;
+  ComponentPath: string;
+  InstalledList: TStringList;
+begin  
+  if (CurStep = ssInstall) and IsMaintenance() and rdbModify.Checked then
+  begin
+    InstalledList := TStringList.Create;
+    try
+      InstalledList.Delimiter := ',';  
+      InstalledList.StrictDelimiter := True;
+      InstalledList.DelimitedText := InstalledComponents;
+      for i := 0 to InstalledList.Count - 1 do
+      begin
+        if not WizardIsComponentSelected(InstalledList[i]) then
+        begin
+          ComponentPath := ExpandConstant('{app}\') + InstalledList[i];
+          if DirExists(ComponentPath) then
+          begin
+            DelTree(ComponentPath, True, True, True);
+          end;
+        end;
+      end;
+    finally
+      InstalledList.Free;
+    end;
+  end;
+end;
+
+```
+
+<br/>
